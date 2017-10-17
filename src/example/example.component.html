@@ -1,0 +1,9 @@
+<div class="top" [style.background]="bkColor">
+  <div class="title" [style.color]="fgColor">
+    <div>Symbol Path: {{pathPrefix}}</div>
+    <div *ngIf="values && values.length > 0">
+      <div>Data source added: </div>
+      <div *ngFor="let val of values">{{val.path}} = {{val.value}}</div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": "",
+    "module": "commonjs",
+    "declaration": false,
+    "emitDecoratorMetadata": true,
+    "outDir": "../out-tsc/tests-output/"
+  },
+  "exclude": [
+    "module.ts"
+  ]
+}
+
+
