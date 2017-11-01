@@ -42,6 +42,8 @@ module.exports = function (config) {
       'node_modules/zone.js/dist/async-test.js',
       'node_modules/zone.js/dist/fake-async-test.js',
 
+      'piwebapi-test-shim.js',
+
       // RxJs
       { pattern: 'node_modules/rxjs/**/*.js', included: false, watched: false },
       { pattern: 'node_modules/rxjs/**/*.js.map', included: false, watched: false },
@@ -62,8 +64,11 @@ module.exports = function (config) {
       { pattern: libBase + '**/*.css', included: false, watched: true },
 
       // Paths for debugging with source maps in dev tools
-      { pattern: libBase + '**/*.ts', included: false, watched: false },
-      { pattern: libBase + '**/*.js.map', included: false, watched: false }
+      // { pattern: libBase + '**/*.ts', included: false, watched: false },
+      // { pattern: libBase + '**/*.js.map', included: false, watched: false },
+
+      { pattern: 'node_modules/@osisoft/**/*.js', included: false, watched: false },
+      { pattern: 'node_modules/@osisoft/**/*.js.map', included: false, watched: false }
     ],
 
     // Proxied base paths for loading assets

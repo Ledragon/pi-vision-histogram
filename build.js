@@ -26,6 +26,8 @@ console.log('Building');
 exports.start = () => {
   return Promise.resolve()
   // Copy library to temporary folder and inline html/css.
+  .then(() => fse.emptyDirSync(tempLibFolder))
+  .then(() => fse.emptyDirSync(es5OutputFolder))
   .then(() => _relativeCopy(`**/*`, srcFolder, tempLibFolder)
     .then(() => inlineResources(tempLibFolder))
     .then(() => console.log('Inlining succeeded'))

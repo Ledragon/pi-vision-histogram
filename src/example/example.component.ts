@@ -17,7 +17,7 @@ export class ExampleComponent implements OnChanges {
     }
   }
 
-  private formatData(): any[] {
+  formatData(): any[] {
     if (!this.data || !this.data.body || this.data.body.length === 0) {
       return [{}];
     } else {

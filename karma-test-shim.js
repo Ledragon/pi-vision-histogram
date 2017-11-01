@@ -65,6 +65,8 @@ System.config({
     '@angular/router/testing': 'npm:@angular/router/bundles/router-testing.umd.js',
     '@angular/forms/testing': 'npm:@angular/forms/bundles/forms-testing.umd.js',
     'rxjs': 'npm:rxjs',
+
+    '@osisoft/piwebapi': '../base/piwebapi-test-shim.js'
   }
 });
 

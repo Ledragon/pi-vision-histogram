@@ -2,7 +2,7 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": "",
-    "module": "commonjs",
+    "module": "system",
     "declaration": false,
     "emitDecoratorMetadata": true,
     "outDir": "../out-tsc/tests-output/"

@@ -68,6 +68,7 @@
     "ts-loader": "^0.9.5",
     "tslint": "5.7.0",
     "typedoc": "^0.8.0",
-    "typescript": "2.5.3"
+    "typescript": "2.5.3",
+    "@osisoft/piwebapi": "2.0.1"
   }
 }

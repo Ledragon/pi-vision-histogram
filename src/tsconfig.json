@@ -4,8 +4,7 @@
     "target": "es5",
     "outDir": "../build-output/",
     "rootDir": "./",
-    "baseUrl": "",
-    "types": []
+    "baseUrl": ""
   },
   "exclude": [
     "**/*.spec.ts"
