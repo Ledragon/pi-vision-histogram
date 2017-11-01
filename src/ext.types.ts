@@ -298,13 +298,21 @@ export enum ConfigPropType {
    */
   Columns,
   /**
-   * Set the Text alignment style
-   */
-  TextAlign,
-  /**
    * Data source input from configuration UI
    */
   Datasource,
+  /**
+   * Radio button style config options
+   */
+  RadioButtons,
+  /**
+   * Create a dropdown list with custom config options
+   */
+  Dropdown,
+    /**
+   * Create a list boxwith custom config options
+   */
+  Listbox,
   /**
    * Custom config property
    */
@@ -369,6 +377,11 @@ export interface ConfigPropDef extends CustomPropDef {
    */
   isMultiState?: boolean;
   /**
+   * For multi-item configuration types (radio buttons, listbox and dropdown),
+   * specify custom configuration items for the configuration property
+   */
+  configItems?: ConfigItemDef[];
+  /**
    * Set to true if this is a required configuration property
    */
   required?: boolean;
@@ -404,6 +417,16 @@ export abstract class ExtBaseType {
    * A flag to indicate if implemented in Angular
    */
   public isAngular?: boolean;
+}
+
+/**
+ * Definition for a custom configuration item
+ * @interface
+ */
+export interface ConfigItemDef {
+  text?: string;
+  image?: string;
+  value: any;
 }
 
 /**
