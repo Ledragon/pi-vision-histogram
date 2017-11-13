@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const semver = require('semver');
 
-const DEFAULT_NOVA_PATH = '../../Nova';
+const DEFAULT_NOVA_PATH = '../Nova';
 const DEFAULT_EXT_PATH = '.';
 const PKG_JSON_FILE = 'package.json';
 const PKG_LOCK_JSON_FILE = 'package-lock.json';

@@ -2,7 +2,7 @@
   "name": "example-symbol-library",
   "version": "1.0.0",
   "scripts": {
-    "clean": "rimraf out-tsc dist",
+    "clean": "rimraf node_modules out-tsc dist",
     "prebuild": "npm run clean",
     "build": "node -e require('./build').start()",
     "predeploy": "npm run build",
@@ -25,20 +25,20 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/common": "4.4.4",
-    "@angular/compiler": "4.4.4",
-    "@angular/core": "4.4.4",
-    "@angular/forms": "4.4.4",
-    "@angular/platform-browser": "4.4.4",
-    "@angular/platform-browser-dynamic": "4.4.4",
-    "@angular/router": "4.4.4",
+    "@angular/common": "4.4.6",
+    "@angular/compiler": "4.4.6",
+    "@angular/core": "4.4.6",
+    "@angular/forms": "4.4.6",
+    "@angular/platform-browser": "4.4.6",
+    "@angular/platform-browser-dynamic": "4.4.6",
+    "@angular/router": "4.4.6",
     "core-js": "2.5.1",
-    "express": "4.16.1",
+    "express": "4.16.2",
     "rxjs": "5.4.3",
-    "zone.js": "0.8.17"
+    "zone.js": "0.8.18"
   },
   "devDependencies": {
-    "@angular/compiler-cli": "4.4.4",
+    "@angular/compiler-cli": "4.4.6",
     "@types/compression": "0.0.34",
     "@types/core-js": "0.9.43",
     "@types/express": "^4.0.37",
@@ -66,7 +66,7 @@
     "semver": "^5.4.1",
     "systemjs": "^0.19.40",
     "ts-loader": "^0.9.5",
-    "tslint": "5.7.0",
+    "tslint": "5.8.0",
     "typedoc": "^0.8.0",
     "typescript": "2.5.3",
     "@osisoft/piwebapi": "2.0.1"
