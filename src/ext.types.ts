@@ -425,7 +425,8 @@ export abstract class ExtBaseType {
  */
 export interface ConfigItemDef {
   text?: string;
-  image?: string;
+  iconUrl?: string;
+  icon?: string;
   value: any;
 }
 
