@@ -10,6 +10,7 @@
     "deploy": "node deploy.js",
     "predeploy:min": "npm run build",
     "deploy:min": "node deploy.js --r",
+    "prebuild-test": "npm run cleanout",
     "build-test": "tsc -p src/tsconfig.spec.json",
     "build-test:watch": "tsc -p src/tsconfig.spec.json -w",
     "certgen": "node ssl/certgen.js",
