@@ -2,8 +2,9 @@
   "name": "example-symbol-library",
   "version": "1.0.0",
   "scripts": {
-    "clean": "rimraf node_modules out-tsc dist",
-    "prebuild": "npm run clean",
+    "clean": "rimraf out-tsc dist node_modules",
+    "cleanout": "rimraf out-tsc dist",
+    "prebuild": "npm run cleanout",
     "build": "node -e require('./build').start()",
     "predeploy": "npm run build",
     "deploy": "node deploy.js",
