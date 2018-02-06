@@ -10,7 +10,7 @@ const argv = require('minimist')(process.argv.slice(2));
 const novaFolder = argv.nova ? argv.nova : 'nova';
 const isRelease = argv.r;
 
-const destPath = path.join('..', 'Nova', 'src', 'assets', 'plugins', libName);
+const destPath = path.join('..', 'Nova', 'src', 'assets', 'extensions', libName);
 const assetPath = path.join('.', 'src', 'assets'); 
 const distPath = path.join('.', 'dist');
 

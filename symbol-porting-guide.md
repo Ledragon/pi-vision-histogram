@@ -40,29 +40,34 @@ var definition = {
 CS.symbolCatalog.register(definition);
 ```
 
-In order to port over all the metadata, we need to add these information into an element of the `symbols` property in `PluginLibrary` class in `module.ts`.
+In order to port over all the metadata, we need to add these information into an element of the `symbols` property in `ExtensionLibrary` class in `module.ts`.
 
 ```typescript
-export class PluginLibrary extends ExtNgPluginLibrary {
+export class ExtensionLibrary extends NgExtensionLibrary {
   module = LibModule;
   moduleFactory = LibModuleNgFactory;
-  symbols: ExtSymbolType[] = [
+  symbols: SymbolType[] = [
     {
       name: 'simple-value',
       displayName: 'Simple Value Symbol',
       dataParams: { shape: 'single' },
       thumbnail: '^/assets/images/example.svg',
       compCtor: SimpleValueComponent,
-      sysProps: [
-        SysPropType.Data
+      inputs: [
+        SymbolInputType.Data
       ],
-      configProps: [
-        { propName: 'bkColor', displayName: 'Background color', configType: ConfigPropType.Color, defaultVal: 'orange',
-          isMultiState: true },
-        { propName: 'txtColor', displayName: 'Text Color', configType: ConfigPropType.Color, defaultVal: 'black',
-          isMultiState: true },
-        { propName: 'showLabel', displayName: 'Show Label', configType: ConfigPropType.Flag, defaultVal: true },
-        { propName: 'showTime', displayName: 'Show Time', configType: ConfigPropType.Flag, defaultVal: true }
+      generalConfig: [
+        {
+          name: 'Example Options',
+          isExpanded: true,
+          configProps: [
+            { propName: 'bkColor', displayName: 'Background color', configType: ConfigPropType.Color, defaultVal: 'orange',
+              isMultiState: true },
+            { propName: 'txtColor', displayName: 'Text Color', configType: ConfigPropType.Color, defaultVal: 'black',
+              isMultiState: true },
+            { propName: 'showLabel', displayName: 'Show Label', configType: ConfigPropType.Flag, defaultVal: true },
+            { propName: 'showTime', displayName: 'Show Time', configType: ConfigPropType.Flag, defaultVal: true }
+          ]
       ],
       layoutWidth: 150,
       layoutHeight: 150
@@ -74,13 +79,13 @@ export class PluginLibrary extends ExtNgPluginLibrary {
 Based on the above code snippets, we will compare the differences between two platforms when registering `simple-value` component.
 
 ### Class vs Object
-Instead of creating a `definition` JavaScript object as symbol metadata, we are now leveraging `TypeScript` to strongly type metadata for a custom symbol. The `simple-value` symbol's metadata is of `ExtSymbolType`.
+Instead of creating a `definition` JavaScript object as symbol metadata, we are now leveraging `TypeScript` to strongly type metadata for a custom symbol. The `simple-value` symbol's metadata is of `SymbolType`.
 
 ### Data Source
 `simple-value` symbol in PI Vision 3 uses `datasourceBehavior` and `DataShape` to describe the data source that the symbol needs. In the new platform, we combine them into `dataParams` property and use `single` shape for the data source. 
 
 ### System Inputs
-In PI Vision 3 we don't need to specify the system inputs, while in PI Vision 4, we offer a list of system-level inputs that you can choose from. Here we need to specify ` SysPropType.Data` in the `sysProps` array because the symbol needs the real-time data from PI System. 
+In PI Vision 3 we don't need to specify the system inputs, while in PI Vision 4, we offer a list of system-level inputs that you can choose from. Here we need to specify ` SymbolInputType.Data` in the `inputs` array because the symbol needs the real-time data from PI System. 
 
 ### Configuration properties
 In the `definition` object we define `getDefaultConfig` callback to register for the configuration properties in PI Vision 3. We also needed to create a separate configuration template file `sym-simplevalue-config.html` to build the UI and bind the configuration variables with the UI. 
@@ -99,17 +104,23 @@ getDefaultConfig: function() {
 }
 ```
 
-In PI Vision 4, the steps are different. By specifying configuration options in the `configProps` array, config UI will be automatically generated. For example, the `showLabel` configuration option is changed to this object with `propName`, `displayName`, `configType`, and `defaultVal`, where:
+In PI Vision 4, the steps are different. By specifying configuration options in the `generalConfig` array, config UI will be automatically generated. For example, the `showLabel` configuration option is changed to this object with `propName`, `displayName`, `configType`, and `defaultVal`, where:
 * `propName` has the variable name that matches the property name in the returned object  in `getDefaultConfig` callback
 * `displayName` is the human friendly name that will show up on the configuration UI, so that we don't need to manually create the config UI template.
 * `configType` set to `ConfigPropType.Flag` means that it is a boolean flag and the config UI will generate a switch to allow users to turn it on/off
 * `defaultValue` property sets the default value for a configuration property, which is `true` in our `showLabel` case
 
 ```typescript
-configProps: [
-  ...
-  { propName: 'showLabel', displayName: 'Show Label', configType: ConfigPropType.Flag, defaultVal: true },
-  ...
+generalConfig: [
+  {
+    name: 'Example Options',
+    isExpanded: true,
+    configProps: [
+      ...
+      { propName: 'showLabel', displayName: 'Show Label', configType: ConfigPropType.Flag, defaultVal: true },
+      ...
+    ]
+  }
 ]
 ```
 
@@ -126,15 +137,21 @@ var definition = {
 In PI Vision 4, we don't need to create a new variable for multistating a UI component. We can set `isMultiState` property to true for those config properties that need multi-state functionality. Here we set the multi-state property to `txtColor` config property. When we load the symbol and opens configuration pane, we will be able to multistate the text color of this symbol. 
 
 ```typescript
-export class PluginLibrary extends ExtNgPluginLibrary {
+export class ExtensionLibrary extends NgLibrary {
   ...
-  symbols: ExtSymbolType[] = [
+  symbols: SymbolType[] = [
     {
       ...
-      configProps: [
-        ...
-        { propName: 'txtColor', displayName: 'Text Color', configType: ConfigPropType.Color, defaultVal: 'black', isMultiState: true }
-        ...
+      generalConfig: [
+        {
+          name: 'Example Options',
+          isExpanded: true,
+          configProps: [
+            ...
+            { propName: 'txtColor', displayName: 'Text Color', configType: ConfigPropType.Color, defaultVal: 'black', isMultiState: true }
+            ...
+          ]
+        }
       ],
       ...
     }
@@ -189,7 +206,7 @@ function dataUpdate(data) {
 }
 ```
 
-To port over the data update code, we need to first specify `data` as an `@Input()` to the component. The name must match the name defined in the `sysProps` in the symbol metadata in `module.ts`. The Angular component we just created also needs to implement the `OnChanges` interface so that the component is aware of the data updates:
+To port over the data update code, we need to first specify `data` as an `@Input()` to the component. The name must match the name defined in the `inputs` in the symbol metadata in `module.ts`. The Angular component we just created also needs to implement the `OnChanges` interface so that the component is aware of the data updates:
 
 ```typescript
 export class SimpleValueComponent implements OnChanges {

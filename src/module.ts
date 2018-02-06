@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ExtNgPluginLibrary, ExtSymbolType, SysPropType, ConfigPropType } from './ext.types';
-import { LibModuleNgFactory } from './aot/module.ngfactory';
+import { NgLibrary, SymbolType, SymbolInputType, ConfigPropType } from './framework';
+import { LibModuleNgFactory } from './module.ngfactory';
 
 import { ExampleComponent } from './example/example.component';
 
@@ -13,23 +13,29 @@ import { ExampleComponent } from './example/example.component';
 })
 export class LibModule { }
 
-export class PluginLibrary extends ExtNgPluginLibrary {
+export class ExtensionLibrary extends NgLibrary {
   module = LibModule;
   moduleFactory = LibModuleNgFactory;
-  symbols: ExtSymbolType[] = [
+  symbols: SymbolType[] = [
     {
       name: 'example-symbol',
-      displayName: 'Example Plug-in Symbol',
+      displayName: 'Example Symbol',
       dataParams: { shape: 'single' },
       thumbnail: '^/assets/images/example.svg',
       compCtor: ExampleComponent,
-      sysProps: [
-        SysPropType.Data,
-        SysPropType.PathPrefix
+      inputs: [
+        SymbolInputType.Data,
+        SymbolInputType.PathPrefix
       ],
-      configProps: [
-        { propName: 'bkColor', displayName: 'Background color', configType: ConfigPropType.Color, defaultVal: 'white' },
-        { propName: 'fgColor', displayName: 'Color', configType: ConfigPropType.Color, defaultVal: 'black' }
+      generalConfig: [
+        {
+          name: 'Example Options',
+          isExpanded: true,
+          configProps: [
+            { propName: 'bkColor', displayName: 'Background color', configType: ConfigPropType.Color, defaultVal: 'white' },
+            { propName: 'fgColor', displayName: 'Color', configType: ConfigPropType.Color, defaultVal: 'black' }
+          ]
+        }
       ],
       layoutWidth: 200,
       layoutHeight: 100

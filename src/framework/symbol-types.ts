@@ -1,17 +1,19 @@
-import { EventEmitter, OnChanges } from '@angular/core';
 
 /**
- * The extensibility version number for this file.
+ * @license
+ * Copyright © 2017-2018 OSIsoft, LLC. All rights reserved.
+ * Use of this source code is governed by the terms in the accompanying LICENSE file.
  */
-export const EXT_VERSION_NUM = 1;
-
+import { EventEmitter, OnChanges } from '@angular/core';
+import { BasePropDef, CustomPropDef, ConfigPropDef, ConfigComponent, ConfigGroupDef,
+         BaseType, DataParams } from './types';
 export const DISPLAY_CATEGORY = 'display';
 
 /**
  * Interface for the Symbol API
  * This interface defines the possible inputs and outputs to the symbol
  */
-export interface ExtSymbolAPI {
+export interface SymbolAPI {
   // INPUTS
 
   /**
@@ -98,49 +100,12 @@ export interface ExtSymbolAPI {
   embedAction: EventEmitter<any>;
 }
 
-export interface ExtConfigComponent extends OnChanges {
-  paramIndex: number;
-  selectedSymbols: any[];
-  changeLayout: EventEmitter<any>;
-  changeParam: EventEmitter<any>;
-}
-
-export interface ExtJSSymbol {
+export interface JSSymbol {
   onChanges(changes: any);
 }
 
 /**
- * Base class for the extensibile plug in library
- * @abstract
- */
-export abstract class ExtPluginLibrary {
-  /**
-   * Array of extensible symbols
-   * @abstract
-   */
-  abstract symbols: ExtSymbolType[];
-
-  /**
-   * Extensibility version number
-   * @readonly
-   */
-  readonly version = EXT_VERSION_NUM;
-}
-
-/**
- * Angular class for extensible library
- * @abstract
- */
-export abstract class ExtNgPluginLibrary extends ExtPluginLibrary {
-  abstract module: any;
-  abstract moduleFactory: any;
-}
-
-/////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Default settings when initializing an Angular extensibility symbol.
+ * Default settings when initializing an Angular symbol extension.
  * @const
  */
 export const NgSymbolTypeDefaults: any = {
@@ -168,9 +133,11 @@ export const NgSymbolTypeDefaults: any = {
    * By defualt the symbol falls into the display category
    */
   categories: [DISPLAY_CATEGORY],
-  sysProps: [],
+  inputs: [],
   customProps: [],
-  configProps: []
+  generalConfig: [],
+  dataItemsConfig: [],
+  columnsConfig: [],
 };
 
 export const JSSymbolTypeDefaults: any = {
@@ -180,17 +147,19 @@ export const JSSymbolTypeDefaults: any = {
   noConfigUI: false,
   isAngular: false,
   categories: [ DISPLAY_CATEGORY ],
-  sysProps: [],
+  inputs: [],
   customProps: [],
-  configProps: []
+  generalConfig: [],
+  dataItemsConfig: [],
+  columnsConfig: []
 };
 
 /**
  * System level property enumeration type.
- * Each system property maps to a system level input in ExtSymbolAPI
- * E.g. SysPropType.CursorTime maps to cursorTime @Input in your component
+ * Each system property maps to a system level input in SymbolAPI
+ * E.g. SymbolInputType.CursorTime maps to cursorTime @Input in your component
  */
-export const enum SysPropType {
+export const enum SymbolInputType {
   /**
    * Adding this property indicates the symbol requested certain columns for data summary
    */
@@ -248,7 +217,7 @@ export const enum SysPropType {
    */
   HighlightHandle,
   /**
-   * Add this to sysProps if symbol needs to know whether
+   * Add this to inputs if symbol needs to know whether
    * it is selected
    */
   Selected,
@@ -263,194 +232,15 @@ export const enum SysPropType {
   HandlePropConfigs
 }
 
-// Can't make this const because we need to assign it to a local property in order to use it in component template
-/**
- * Enumeration for different configuration property types
- * @enum
- */
-export enum ConfigPropType {
-  /**
-   * Color configuration property
-   */
-  Color,
-  /**
-   * Number configuration property
-   */
-  Num,
-  /**
-   * String configuration property
-   */
-  Text,
-  /**
-   * Boolean configuration property
-   */
-  Flag,
-  /**
-   * Url configuration property
-   */
-  Url,
-  /**
-   * Document URL configuration property
-   */
-  DocumentUrl,
-  /**
-   * Modify Columns from configuration UI
-   */
-  Columns,
-  /**
-   * Data source input from configuration UI
-   */
-  Datasource,
-  /**
-   * Radio button style config options
-   */
-  RadioButtons,
-  /**
-   * Create a dropdown list with custom config options
-   */
-  Dropdown,
-    /**
-   * Create a list boxwith custom config options
-   */
-  Listbox,
-  /**
-   * Custom config property
-   */
-  Custom
-}
-
-/**
- * Base property definition
- */
-export interface BasePropDef {
-  inputAlias?: string;
-}
-
 /**
  * Definition for a system level property
  * @interface
  */
-export interface SystemPropDef extends BasePropDef {
+export interface SymbolInputDef extends BasePropDef {
   /**
    * the system level property type
    */
-  sysType: SysPropType;
-}
-
-/**
- * Definition for a custom property
- */
-export interface CustomPropDef extends BasePropDef {
-  /**
-   * name of the property
-   */
-  propName: string;
-  /**
-   * default values for the custom property
-   */
-  defaultVal?: any;
-}
-
-/**
- * The configuration property definition
- * @interface
- */
-export interface ConfigPropDef extends CustomPropDef {
-  /**
-   * name to be displayed on configuration UI
-   */
-  displayName: string;
-  /**
-   * configuration property type
-   */
-  configType: ConfigPropType;
-  /**
-   * minimum value for the configuration property
-   */
-  min?: number;
-  /**
-   * maximum value for the configuration property
-   */
-  max?: number;
-  /**
-   * Set to true if the symbol is a multistate symbol
-   */
-  isMultiState?: boolean;
-  /**
-   * For multi-item configuration types (radio buttons, listbox and dropdown),
-   * specify custom configuration items for the configuration property
-   */
-  configItems?: ConfigItemDef[];
-  /**
-   * Set to true if this is a required configuration property
-   */
-  required?: boolean;
-}
-
-/**
- * Base class for extensible symbols.
- * @abstract
- */
-export abstract class ExtBaseType {
-  /**
-   * The internal name of the symbol.
-   */
-  public name: string;
-
-  /**
-   * The name of the symbol that will be displayed to the end user.
-   */
-  public displayName: string;
-  /**
-   * The thumbnail for the extensible symbol
-   */
-  public thumbnail: string;
-  /**
-   * Specifies the Angular component name of this symbol
-   */
-  public compCtor: any;
-  /**
-   * Categories that the symbol falls under
-   */
-  public categories?: string[];
-  /**
-   * A flag to indicate if implemented in Angular
-   */
-  public isAngular?: boolean;
-}
-
-/**
- * Definition for a custom configuration item
- * @interface
- */
-export interface ConfigItemDef {
-  text?: string;
-  iconUrl?: string;
-  icon?: string;
-  value: any;
-}
-
-/**
- * Parameters to configure symbol data
- * @interface
- */
-export interface DataParams {
-  /**
-   * The data shape of the symbol
-   * E.g. 'single' means symbol takes just one data point or stream
-   */
-  shape?: string;
-  /**
-   * Specify the columns to show for summary data
-   * E.g. ['Average', 'Total'] indicates the symbol needs average and total
-   * of some data stream
-   */
-  columns?: string[];
-  /**
-   * The data mode. For example, 'snapshot' means the symbol will take
-   * snapshot data as input
-   */
-  dataMode?: string;
+  sysType: SymbolInputType;
 }
 
 /**
@@ -461,7 +251,7 @@ export interface DataParams {
  * how to query for PI data, and how it interacts with the rest of the application.
  * @class
  */
-export class ExtSymbolType extends ExtBaseType {
+export class SymbolType extends BaseType {
   /**
    * Parameters to configure symbol data
    */
@@ -498,7 +288,7 @@ export class ExtSymbolType extends ExtBaseType {
    * A function that will be called when layout should be updated
    */
   onLayout?: (model: any, initial: boolean, numVertical: number, numHorizontal: number, snap: (num: number) => number) => any;
-  onInit?: (comp: any, api: ExtSymbolAPI) => any;
+  onInit?: (comp: any, api: SymbolAPI) => any;
   configCtors?: any[];
   /**
    * Set to true if the symbol doesn't need a configuration UI
@@ -517,20 +307,25 @@ export class ExtSymbolType extends ExtBaseType {
    * An array of system level properties to be used in the symbol.
    * These properties can then be sent to your symbol component as multiple
    * @Input variables.
-   * See SysPropType for definition of each system property
+   * See SymbolInputType for definition of each system property
    */
-  sysProps?: Array<SystemPropDef | SysPropType>;
+  inputs?: Array<SymbolInputDef | SymbolInputType>;
   /**
    * An array of custom properties
    */
   customProps?: CustomPropDef[];
   /**
-   * An array of configuration properties that PI Vision will render
-   * UI for you and allow user input. These config properties can then
-   * be sent to symbol component as multipel @Input variables
+   * A list of configuration property groups for general configuration items.
    */
-  configProps?: ConfigPropDef[];
-
+  generalConfig?: ConfigGroupDef[];
+  /**
+   * A list of configuration property groups that are applied to each data item.
+   */
+  dataItemsConfig?: ConfigGroupDef[];
+  /**
+   * A list of configuration property groups that are applied to each data column.
+   */
+  columnsConfig?: ConfigGroupDef[];
   /**
    * Creates the extensible symbol object
    */

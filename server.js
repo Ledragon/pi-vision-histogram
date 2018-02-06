@@ -40,7 +40,7 @@ app.use('/', express.static(path.join(__dirname, 'dist')));
 app.get('/manifest', (req, res) => {
   const { address, port } = server.address();
   res.json({
-    plugins: [{
+    extensions: [{
       name: camelCase(libName),
       path: `https://${address}:${port}/${libName}.js`
     }]

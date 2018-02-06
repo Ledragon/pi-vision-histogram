@@ -1,15 +1,16 @@
-.title {
-  padding: 5px;
-}
-
-.top {
-  width: 100%;
-  height: 100%;
-  font-size: 16pt;
-}
 
 :host {
   display: inline-block;
+}
+
+.items, .top, :host {
   width: 100%;
   height: 100%;
 }
+
+.items {
+  font-size: 16pt;
+  overflow: auto;
+  padding: 5px;
+}
+

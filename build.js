@@ -33,10 +33,12 @@ exports.start = () => {
     .then(() => console.log('Inlining succeeded'))
   )
   // Compile to ES5.
-  .then(() => ngc({ project: `${tempLibFolder}/tsconfig.json` })
-    .then(exitCode => exitCode === 0 ? Promise.resolve() : Promise.reject())
-    .then(() => console.log('Compilation succeeded'))
-  )
+  .then(() => ngc(['-p',`${tempLibFolder}/tsconfig.json`], (error) => {
+      if (error) {
+        throw new Error(error);
+      }
+  }))
+  .then(() => console.log('Compilation succeeded'))
   // Bundle lib.
   .then(() => {
     // Base configuration.
