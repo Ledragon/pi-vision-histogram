@@ -6,6 +6,7 @@
 import { Component, Input, OnChanges } from '@angular/core';
 
 @Component({
+  selector: 'example',
   templateUrl: 'example.component.html',
   styleUrls: ['example.component.css']
 })
@@ -22,11 +23,36 @@ export class ExampleComponent implements OnChanges {
     }
   }
 
-  formatData(): any[] {
-    if (!this.data || !this.data.body || this.data.body.length === 0) {
-      return [{}];
+  formatData() {
+    if (this.isDataValid()) {
+      return this.data.body.map(r => ({ path: r.path, value: this.formatValue(r.value) }));
     } else {
-      return this.data.body;
+      return [];
     }
+  }
+
+  private formatValue(value: any) {
+    // very basic enumeration support
+    if (value.Name) {
+      return value.Name;
+    }
+
+    return value;
+  }
+
+  private isDataValid(): boolean {
+    return this.data && this.data.body && this.data.body.length;
+  }
+
+  private formatInfo() {
+    let output = '';
+    this.data.body.forEach(item => {
+      output += item.path + '\n';
+      output += item.timestamp + '\n';
+      output += item.type + '\n';
+      output += (item.good ? 'good' : 'bad') + ' data\n------------\n';
+    });
+
+    return output;
   }
 }

@@ -4,22 +4,66 @@
  * Use of this source code is governed by the terms in the accompanying LICENSE file.
  */
 import { ExampleComponent } from './example.component';
+import { TestBed, async, ComponentFixture, inject } from '@angular/core/testing'
+import { Component, ViewChild, NO_ERRORS_SCHEMA } from '@angular/core';
+import { testOutputPath } from '../../test-utils';
 
-describe('ExampleComponent', function () {
-  
-  it('should format data', () => {
-    let comp = new ExampleComponent();
-    expect(comp.formatData()).toEqual([{}]);
+describe('Component: ExampleComponent', function () {
 
-    comp.data = {};
-    expect(comp.formatData()).toEqual([{}]);
+  @Component({
+    selector: 'test-app',
+    template: `
+      <example #exampleComponent
+        [fgColor]="fgColor"
+        [bkColor]="bkColor"
+        [data]="data"
+        [pathPrefix]="pathPrefix"
+      ></example>
+    `
+  })
+  class TestHostComponent {
+    @ViewChild('exampleComponent', { read: ExampleComponent })
+    target: ExampleComponent;
 
-    comp.data = { body: [] };
-    expect(comp.formatData()).toEqual([{}]);
+    data: any;
+    pathPrefix: string;
+    fgColor: string = '#123456';
+    bkColor: string = '#AA00BB';
+  }
 
-    let myData = [{ path: 'my path', value: 42 }];
-    comp.data = { body: myData };
-    expect(comp.formatData()).toEqual(myData);
+  let fixture: ComponentFixture<TestHostComponent>;
+  let host: TestHostComponent;
+  let component: ExampleComponent;
+
+  beforeEach(async(() => {
+
+  }));
+
+  beforeEach(() => {
+    return TestBed.configureTestingModule({
+      imports:      [ ],
+      declarations: [ TestHostComponent, ExampleComponent ],
+      providers:    [ ],
+      schemas:      [ NO_ERRORS_SCHEMA ]
+    })
+    .overrideComponent(ExampleComponent, {
+      // without the override, karma just attempts to load the html from http://localhost:9877/example.component.html
+      set: {
+        templateUrl: testOutputPath + 'example/example.component.html',
+        styleUrls:  [testOutputPath + 'example/example.component.css']
+      }
+    })
+    .compileComponents()
+    .then(() => {
+      fixture = TestBed.createComponent(TestHostComponent);
+      host = fixture.componentInstance;
+      component = host.target;
+      fixture.detectChanges();
+    });
   });
 
+   // very basic unit test example
+   it('should be defined', () => {
+    expect(component).toBeDefined();
+  });
 });

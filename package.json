@@ -12,6 +12,7 @@
     "deploy:min": "node deploy.js --r",
     "prebuild-test": "npm run cleanout",
     "build-test": "tsc -p src/tsconfig.spec.json",
+    "postbuild-test": "node test.js",
     "build-test:watch": "tsc -p src/tsconfig.spec.json -w",
     "certgen": "node ssl/certgen.js",
     "certinstall": "node ssl/certinstall.js",
@@ -71,6 +72,7 @@
     "tslint": "5.9.1",
     "typedoc": "0.9.0",
     "typescript": "2.5.3",
-    "@osisoft/piwebapi": "2.1.0-rc.1"
+    "@osisoft/piwebapi": "2.1.0-rc.1",
+    "tslib": "^1.9.0"   
   }
 }
