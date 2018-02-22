@@ -20,6 +20,8 @@ This project contains a single example display symbol to demonstrate symbol crea
 
 ### Installing Dependencies
 
+The following instructions only apply if you are not working against a cloud deployment of PI Vision. If you are using a cloud deployment the published version of the seed project will come preconfigured with matching versions for all Angular dependencies.
+
 The seed project requires some dependencies to be in sync with PI Vision dependencies so the symbols can be loaded properly. Check your [package.json](./package.json) and make sure these package versions match *exactly* with the ones used by the released version of PI Vision. The versions used at the time this document was last updated are:
 ```typescript
 "dependencies": {
@@ -29,45 +31,7 @@ The seed project requires some dependencies to be in sync with PI Vision depende
     "@angular/forms": "5.2.0",
     "@angular/platform-browser": "5.2.0",
     "@angular/platform-browser-dynamic": "5.2.0",
-    "@angular/router": "5.2.0",
-    "core-js": "2.5.3",
-    "express": "4.16.2",
-    "rxjs": "5.5.6",
-    "zone.js": "0.8.20"
-},
-"devDependencies": {
-    "@angular/compiler-cli": "5.2.0",
-    "@types/compression": "0.0.34",
-    "@types/core-js": "0.9.45",
-    "@types/express": "^4.0.37",
-    "@types/jasmine": "2.8.4",
-    "@types/node": "^8.0.31",
-    "camelcase": "^4.0.0",
-    "chokidar": "^1.7.0",
-    "compression": "1.7.1",
-    "concurrently": "3.2.0",
-    "fs-extra": "4.0.3",
-    "glob": "7.1.2",
-    "jasmine-core": "2.8.0",
-    "karma": "2.0.0",
-    "karma-chrome-launcher": "^2.2.0",
-    "karma-cli": "^1.0.1",
-    "karma-html-reporter": "^0.2.7",
-    "karma-jasmine": "1.1.1",
-    "karma-jasmine-html-reporter": "^0.2.2",
-    "nodemon": "^1.12.1",
-    "rollup": "^0.41.5",
-    "rollup-plugin-commonjs": "^8.1.0",
-    "rollup-plugin-node-resolve": "^3.0.0",
-    "rollup-plugin-sourcemaps": "^0.4.1",
-    "rollup-plugin-uglify": "^1.0.1",
-    "semver": "5.5.0",
-    "systemjs": "^0.19.40",
-    "ts-loader": "^0.9.5",
-    "tslint": "5.9.1",
-    "typedoc": "0.9.0",
-    "typescript": "2.5.3",
-    "@osisoft/piwebapi": "2.1.0-rc.1"
+    "@angular/router": "5.2.0"
 }
 ```
 
@@ -102,28 +66,6 @@ After this, you should find out that you have two new folders in your project.
 * `out-tsc` - contains tempoary files used to compile the library
 
 > Note that it is usually more convent to use one of the deployment commands instead of `npm run build` which will both build the javascript library as well as automate the finial packaging and deployment of the Extension to a PI Vision installation.
-
-### Deployment to a PI Vision installation (PI Web API)
-
->Note: This temporary deployment process is subject to change.
-
-Build using the command:
-
-```bash
-npm run build
-```
-
-Copy the contents of the dist folder (choose whether you want to use the minified versions or not) to its own folder underneath the assets/extensions folder of the deployed PI Vision site.
-
-Update the manifest.json file at the root of the assets/extensions folder to include your new extensions. The format is: 
-
-```typescript
-{
-  "extensions": [
-    { "name": "ExampleSymbols", 
-      "path": "/assets/extensions/example-symbol-library/example-symbol-library.js" }]
-}
-```
 
 ### Loading Extension Library in development mode
 PI Vision enables developers to live debug and fine-tune your extension library code in development mode before deploying the library. This section describes the steps to run a local Node.js server to debug custom symbols.
@@ -163,6 +105,30 @@ After a page refresh, your PI Vision running on current browser tab is in develo
 
 #### Making code changes
 Making code changes in your extension library under `./src` will automatically trigger a rebuild of the extension library and restart of the Node.js server. After refreshing the page on your browser, PI Vision is now running with your latest code.  
+
+### Deployment to a PI Vision installation (PI Web API)
+
+These steps are for deploying to a PI Vision site that is hosted on premises. Cloud deployments currently can only be used for developing widgets via enabling developer mode. 
+
+>Note: This temporary deployment process is subject to change.
+
+Build using the command:
+
+```bash
+npm run build
+```
+
+Copy the contents of the dist folder (choose whether you want to use the minified versions or not) to its own folder underneath the assets/extensions folder of the deployed PI Vision site.
+
+Update the manifest.json file at the root of the assets/extensions folder to include your new extensions. The format is: 
+
+```typescript
+{
+  "extensions": [
+    { "name": "ExampleSymbols", 
+      "path": "/assets/extensions/example-symbol-library/example-symbol-library.js" }]
+}
+```
 
 ## Development
 This section describes the structure of the source code in general. You will find more details for creating an Angular component as a PI Vision symbol in [symbol-creation-guide](./symbol-creation-guide.md).
