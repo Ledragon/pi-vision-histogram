@@ -1,21 +1,21 @@
 # PI Vision Symbol Porting Guide
 
-This guide will walk you through the process of porting an existing custom symbol from PI Vision 3 to PI Vision 4. You should have working knowledge of creating a PI Vision 3 symbol. It is strongly recommended that you follow the steps in [README](../README.md) to understand the  process before reading this documentation.
+This document walks you through the process of porting an existing custom symbol from PI Vision 3 to PI Vision 4. You should have working knowledge of creating a PI Vision 3 symbol. It is strongly recommended that you follow the steps in [README](./README.md) to set up your environment before reading this document.
 
-Here we will convert a PI Vision 3 *Simple Value Symbol* from OSIsoft's GitHub [repository][SimpleValueSymbol] into a PI Vision 4 custom symbol. When you are done with this tutorial, the symbol will look like the symbol in `simple-value` repository. 
+This document discusses converting a PI Vision 3 *Simple Value Symbol* from OSIsoft's GitHub [repository][SimpleValueSymbol] into a PI Vision 4 custom symbol. When you are done with this guide, the symbol will look like the symbol in `simple-value` repository. 
 
 ## Angular vs AngularJS
-PI Vision 4 custom symbols are built on top of Angular framework, while PI Vision 3 symbol is based on AngularJS. Although their names sound similar, there are some major differences when coding under the two platforms, such as:
+PI Vision 4 custom symbols are built on the Angular framework, while PI Vision 3 symbol is based on AngularJS. Although their names sound similar, there are some major differences when coding under the two platforms, such as:
 * TypeScript is used for coding in Angular, while AngularJS uses JavaScript
 * Components are used as the building blocks for Angular applications
 * Angular uses module loader rather than loading files to HTML with `<script>` tags
 * Syntax differences
 
-## Getting Started
-We need to create a library project in order to port over a PI Vision 3 custom symbol into PI Vision 4. As mentioned in the [README](../README.md), the easiest way is to copy the seed project folder to a new location and rename the folder. Please follow the [README](../README.md) document to setup the project and verify/install dependencies.
+## Getting started
+You need to create a library project to port a PI Vision 3 custom symbol to PI Vision 4. As described in the [README](./README.md), the easiest way is to copy the extensions project folder to a new location and rename the folder. Please follow the [README](./README.md) document to set up the project, including verification and installation of dependencies.
 
-## Symbol Registration
-In PI Vision 3, we register the `simple-value` symbol by defining an object with symbol metadata:
+## Symbol registration
+In PI Vision 3, you register the `simple-value` symbol by defining an object with symbol metadata:
 
 ```javascript
 var definition = {
@@ -40,7 +40,7 @@ var definition = {
 CS.symbolCatalog.register(definition);
 ```
 
-In order to port over all the metadata, we need to add these information into an element of the `symbols` property in `ExtensionLibrary` class in `module.ts`.
+To port all the metadata to PI Vision 4, you need to add this information into an element of the `symbols` property in `ExtensionLibrary` class in the `module.ts` file.
 
 ```typescript
 export class ExtensionLibrary extends NgExtensionLibrary {
@@ -76,19 +76,25 @@ export class ExtensionLibrary extends NgExtensionLibrary {
 }
 ```
 
-Based on the above code snippets, we will compare the differences between two platforms when registering `simple-value` component.
+The following sections examine the above sample code, and compare the differences between two platforms when registering `simple-value` The symbol:
 
-### Class vs Object
-Instead of creating a `definition` JavaScript object as symbol metadata, we are now leveraging `TypeScript` to strongly type metadata for a custom symbol. The `simple-value` symbol's metadata is of `SymbolType`.
+* [Class vs object](#class-vs-object)
+* [Data source](#data-source)
+* [System inputs](#system-inputs)
+* [Configuration properties](#configuration-properties)
+* [Multistate](#multistate)
 
-### Data Source
-`simple-value` symbol in PI Vision 3 uses `datasourceBehavior` and `DataShape` to describe the data source that the symbol needs. In the new platform, we combine them into `dataParams` property and use `single` shape for the data source. 
+### Class vs object
+Instead of creating a `definition` JavaScript object as symbol metadata, PI Vision 4 leverages TypeScript to strongly type metadata for a custom symbol. The metadata for the  `simple-value` symbol is define in a `SymbolType` object.
 
-### System Inputs
-In PI Vision 3 we don't need to specify the system inputs, while in PI Vision 4, we offer a list of system-level inputs that you can choose from. Here we need to specify ` SymbolInputType.Data` in the `inputs` array because the symbol needs the real-time data from PI System. 
+### Data source
+In PI Vision 3, the `simple-value` symbol uses the `datasourceBehavior` and `DataShape` properties to describe the data source that the symbol needs. In PI Vision 4, the same information is specified with the `dataParams` property; the `simple-value` symbol uses the `single` shape for the data source. 
+
+### System inputs
+PI Vision 3 does not require you to specify the system inputs, but PI Vision 4 offers a list of system-level inputs that you can choose from. The `simple-value` symbol specifies ` SymbolInputType.Data` in the `inputs` array because the symbol needs real-time data from the PI System. 
 
 ### Configuration properties
-In the `definition` object we define `getDefaultConfig` callback to register for the configuration properties in PI Vision 3. We also needed to create a separate configuration template file `sym-simplevalue-config.html` to build the UI and bind the configuration variables with the UI. 
+In PI Vision 3, the `definition` object defines the `getDefaultConfig` callback to register the configuration properties. A separate configuration template file `sym-simplevalue-config.html` builds the UI and binds the configuration variables to the UI. 
 
 ```typescript
 getDefaultConfig: function() {
@@ -104,11 +110,11 @@ getDefaultConfig: function() {
 }
 ```
 
-In PI Vision 4, the steps are different. By specifying configuration options in the `generalConfig` array, config UI will be automatically generated. For example, the `showLabel` configuration option is changed to this object with `propName`, `displayName`, `configType`, and `defaultVal`, where:
-* `propName` has the variable name that matches the property name in the returned object  in `getDefaultConfig` callback
-* `displayName` is the human friendly name that will show up on the configuration UI, so that we don't need to manually create the config UI template.
-* `configType` set to `ConfigPropType.Flag` means that it is a boolean flag and the config UI will generate a switch to allow users to turn it on/off
-* `defaultValue` property sets the default value for a configuration property, which is `true` in our `showLabel` case
+In PI Vision 4, you specify the configuration options in the `generalConfig` array, and the configuration UI is automatically generated. The following example creates the `showLabel` configuration option by setting the `propName`, `displayName`, `configType`, and `defaultVal` properties:
+* `propName` -- the variable name that matches the property name in the returned object in the `getDefaultConfig` callback
+* `displayName` -- the human friendly name that appears in the configuration UI; you need not manually create the config UI template
+* `configType`  -- set to `ConfigPropType.Flag` indicates that the field is a boolean flag and the configuration UI will generate a switch to allow users to turn it on or off
+* `defaultValue` -- sets the default value for a configuration property, which is `true` in this case
 
 ```typescript
 generalConfig: [
@@ -125,7 +131,7 @@ generalConfig: [
 ```
 
 ### Multistate
-In order to configure multistate in PI Vision 3 custom symbol, we need to add an array of strings in the `StateVariables` property in the `definition` object.  
+To configure multistate in PI Vision 3 custom symbols, you added an array of strings to the `StateVariables` property in the `definition` object.  
 
 ```javascript
 var definition = {
@@ -134,7 +140,7 @@ var definition = {
 };
 ```
 
-In PI Vision 4, we don't need to create a new variable for multistating a UI component. We can set `isMultiState` property to true for those config properties that need multi-state functionality. Here we set the multi-state property to `txtColor` config property. When we load the symbol and opens configuration pane, we will be able to multistate the text color of this symbol. 
+In PI Vision 4, you set the `isMultiState` property to true for any configuration properties that need multistate functionality. The following example adds the multistate functionality to the `txtColor` configuration property. When the symbol loads, you can define multiple states for the text color of the symbol in the configuration pane. 
 
 ```typescript
 export class ExtensionLibrary extends NgLibrary {
@@ -159,10 +165,16 @@ export class ExtensionLibrary extends NgLibrary {
 }
 ```
 
-## Symbol Implementation
-In this section we will discuss the implementation difference when implementing the symbol logic for the two platforms.
+## Symbol implementation
+In addition to defining the metadata for the symbol, you must implement the symbol. This section discusses the differences when implementing symbol logic in the two platforms:
 
-### Angular Component vs IIFE
+* [Angular component vs IIFE](#angular-component-vs-IIFE)
+* [System-level data updates](#system\-level-data-updates)
+* [Data binding on configuration properties](#data-binding-on-configuration-properties)
+* [HTML template and CSS](#html-template-and-css)
+
+
+### Angular component vs IIFE
 The PI Vision 3 symbol implementation in [`sym-simplevalue.js`][SimpleValueSymbol] is wrapped in an immediately-invoked function expression (IIFE):
 
 ```javascript
@@ -174,12 +186,12 @@ The PI Vision 3 symbol implementation in [`sym-simplevalue.js`][SimpleValueSymbo
 })(window.PIVisualization);
 ```
 
-In PI Vision 4 the code logic for a symbol goes into an Angular component. We will need to create a new folder called `simple-value` under `src` directory, and create 3 files under the `simple-value` folder. The three files together compose an Angular Component for the custom symbol.
-* `simple-value.component.ts`: This is the most important piece of the component, which includes the class metadata, definition and code logic to handle interations between the symbol and PI Vision 4.
+PI Vision 4 stores the code logic for a symbol in an Angular component. You need to create a new folder, called `simple-value`, under the `src` directory, and create three files in the `simple-value` folder. Together, the three files compose an Angular component for the custom symbol:
+* `simple-value.component.ts`: This file includes the class metadata, definition and code logic to handle interations between the symbol and PI Vision 4.
 * `simple-value.component.html`: This file is the HTML template for the component. It defines the user interface for the custom symbol.
-* `simple-value.component.css`: This file contains the css rules that apply to the current component.
+* `simple-value.component.css`: This file contains the CSS rules that apply to the current component.
 
-Let's take a look at the skeleton for the `simple-value.component.ts` file, which contains the class name `SimpleValueComponent`, the template file it uses `simple-value.component.html`, and the `css` file the component is associated with:
+For example, the skeleton for the `simple-value.component.ts` file specifies the class name `SimpleValueComponent`, its template file  `simple-value.component.html`, and its associated `css` file `simple-value.component.css`:
 
 ```typescript
 @Component({
@@ -191,7 +203,7 @@ export class SimpleValueComponent implements OnChanges {
 ```
 
 ### System-level data updates
-PI Vision 3 custom symbol gets updated data through implementing `onDataUpdate` callback in   [`sym-simplevalue.js`][SimpleValueSymbol].
+A PI Vision 3 custom symbol receives updated data by implementing the `onDataUpdate` callback in   [`sym-simplevalue.js`][SimpleValueSymbol].
 
 ```javascript
 this.onDataUpdate = dataUpdate;
@@ -206,7 +218,7 @@ function dataUpdate(data) {
 }
 ```
 
-To port over the data update code, we need to first specify `data` as an `@Input()` to the component. The name must match the name defined in the `inputs` in the symbol metadata in `module.ts`. The Angular component we just created also needs to implement the `OnChanges` interface so that the component is aware of the data updates:
+To port the data-update code, you must specify `data` as an `@Input()` to the component. The name must match the name defined in the `inputs` in the symbol metadata in the `module.ts` file. In addition, the Angular component for the symbol must implement the `OnChanges` interface to make the component aware of data updates:
 
 ```typescript
 export class SimpleValueComponent implements OnChanges {
@@ -227,13 +239,13 @@ export class SimpleValueComponent implements OnChanges {
 }
 ```
 
-Whenever data update occurs, `ngOnChanges()` function will be called and, if `changes.data` exist, which means the system-level data has updated, then we can update the class properties `value`, `time`, and `label`.
+Whenever data updates, the `ngOnChanges()` function is called, and if `changes.data` exists, which means the system-level data has updated, then the functon updates the class properties `value`, `time`, and `label`.
 
-### Data binding on config properties
+### Data binding on configuration properties
 
-In PI Vision 3 we bind the config properties directly to the view but in PI Vision 4, since each symbol component is self-contained, we need to explicitly define the inputs to the components so that it is aware of the configuration properties we defined in the symbol metadata object in `module.ts`.
+In PI Vision 3, you bind the configuration properties directly to the view. In PI Vision 4, each symbol component is self-contained. Therefore, you must explicitly define the inputs to the components, making them aware of the configuration properties defined in the symbol metadata object in the `module.ts` file.
 
-Define `txtColor`, `bkColor`, `showLabel`, and `showTime` as `@Input()` to the component. We will use these inputs and bind them with the template later in the tutorial. Since `txtColor` is configured as muti-state color, the input will change based on the muti-state settings
+Specifically, in the Angular component, define `txtColor`, `bkColor`, `showLabel`, and `showTime` as `@Input()` to the component. Later, you can use these inputs and bind them to the template. Since the `txtColor` property is configured as multistate color, the input will change based on the multistate settings
 
 ```typescript
 export class SimpleValueComponent implements OnChanges {
@@ -245,9 +257,9 @@ export class SimpleValueComponent implements OnChanges {
 ```
 
 ### HTML template and CSS
-In order to port over symbol HTML template and CSS files we need to copy the content of the `sym-simplevalue-template.html`[SimpleValueSymbol] into `src/simple-value.component.ts`. There are syntax changes from `AngularJS` to `Angular` so that we need to change accordingly. 
+To port the PI Vision 3 symbol's HTML template and CSS files, you need to copy the content of the `sym-simplevalue-template.html` (see[SimpleValueSymbol]) into the `src/simple-value.component.html` file. There are syntax changes from AngularJS to Angular; therefore, you must make changes when copying the content.  
 
-This is the PI Vision 3 custom symbol mark-up:
+For example, consider the following PI Vision 3 custom symbol HTML:
 ```html
 <div ng-style="{background: config.BackgroundColor, color: MultistateColor || config.TextColor}">
     <div ng-show="config.ShowLabel">{{label}}</div>
@@ -255,8 +267,13 @@ This is the PI Vision 3 custom symbol mark-up:
     <div ng-show="config.ShowTime">{{time}}</div>
 </div>
 ```
+The following table shows required changes:
+| PI Vision 3 | PI Vision 4|
+------------|-------
+`ng-style="{background: config.BackgroundColor}"` | `[style.background]="bkColor"`
+`ng-show="config.ShowLabel"` | `*ngIf="showLabel"`
 
-For example, `ng-style="{background: config.BackgroundColor}"` is changed to `[style.background]="bkColor"` and `ng-show="config.ShowLabel"` is changed to `*ngIf="showLabel"`. Below snippet shows what it looks like after adjusting the syntax. 
+After applying the changes, you copy the following into the PI Vision 4 HTML: 
 ```html
 <div [style.background]="bkColor"
      [style.color]="txtColor" 
@@ -267,23 +284,23 @@ For example, `ng-style="{background: config.BackgroundColor}"` is changed to `[s
 </div>
 ```
 
-For a list of common syntax changes, please see this [link](https://angular.io/guide/ajs-quick-reference) for more information
+For a list of common syntax changes, see the Angular article [AngularJS to Angular Quick Reference](https://angular.io/guide/ajs-quick-reference).
 
-## Third-Party Frameworks
-In order to use third-party frameworks for a custom symbol, we need to put the library scripts in the the `libraries` folder under PI Vision 3 directory. 
+## Third-party frameworks
+To use third-party frameworks for custom symbols in PI Vision 3, you put the library scripts in the `libraries` folder under the PI Vision 3 directory. 
 
-In PI Vision 4, we are leveraging `Node.js` and `npm` to be able to install `npm` packages in the project and then bundle the libraries with `Rollup.js` in the build process.
+In PI Vision 4, you can leverage `Node.js` and `npm` to install `npm` packages in the project, and then bundle the libraries with `Rollup.js` in the build process.
 
-What we need to do is to install the third party libraries by entering `npm install <your-library>` and then utilize the library by ES6 `imports` syntax in your component. 
+To install the third-party libraries, enter `npm install <your-library>` and then use the `import` syntax in your Angular component to import the library for use in the symbol. 
 
-## Dependency Injection
-PI Vision 3 custom symbol injects dependencies through input parameters in the `init` funciton. For example, the [`Time Series Chart`][TimeSeriesChart] injects `scope` and `elem` into the symbol.
+## Dependency injection
+A PI Vision 3 custom symbol injects dependencies through input parameters in the `init` function. For example, the [`Time Series Chart`][TimeSeriesChart] symbol injects `scope` and `elem` into the symbol.
 ```javascript
 symbolVis.prototype.init = function(scope, elem) {
 }
 ```
 
-In PI Vision 4, we inject dependencies through the Angular component constructor. For example, this will allow an Angular component to access the element reference:
+In PI Vision 4, you inject dependencies through the Angular component constructor. For example, the following constructor allows an Angular component to access the element reference:
 ```typescript
 export class SomeCustomSymbol {
   constructor(private elementRef: ElementRef) { }

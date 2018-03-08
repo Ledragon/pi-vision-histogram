@@ -1,17 +1,20 @@
 # PI Vision Symbol Creation Guide
 
-This documentation assumes that you have read the [README](./README.md) documentation in this repository and are familiar with [Angular][angular] and [JavaScript][javascript] in general. We will walk you through the steps to create a custom symbol.
+This document assumes that you have read the [README](./README.md) documentation in this repository and are familiar with [Angular][angular] and [JavaScript][javascript]. This document describes the files you must edit to create a custom symbol.
 
-A single PI Vision symbol consists of two classes.
-* An Angular component which provides the visualization for the symbol
-* A `SymbolType` object which defines the meta-data about the component
+A single PI Vision symbol consists of two classes:
+* An Angular component, which provides the visualization for the symbol
+* A `SymbolType` object, which defines the metadata for the symbol
 
-We will first talk about how to build an Angular component and put them into the module. Then we will describe how the metadata is defined for the symbol and register the symbol in the module. 
+To create a custom symbol:
+1. Create an Angular component for the symbol.
+2. Register the Angular component in the module file.
+3. Define the metadata for the symbol in the module file.
 
-## Creating an Angular Component
-Components are UI building blocks in Angular. The easiest way to create a new component would be to copy and modify the `ExampleComponent` in this seed project. The code snippet we show below are slightly different from the `ExampleComponent` because we want to provide more options to build an Angular component. 
+## Angular component
+Components are UI building blocks in Angular. The easiest way to create a new component is to copy and modify the `ExampleComponent` in the extension project. For example, you can create a `RadarChartComponent` from the `ExampleComponent`.  
 
-### Metadata Overview:
+### Component metadata
 ```typescript
 @Component({
   selector: 'radar-chart',
@@ -20,7 +23,9 @@ Components are UI building blocks in Angular. The easiest way to create a new co
 })
 ```
 
-Use `@Component()` decorator to define metadata for the component. The above code snippet includes some of the most common metadata fields:
+
+
+Use the `@Component()` decorator to define metadata for the component. The above code snippet includes some of the most common metadata fields:
 * `selector`: The HTML tag name shown in the DOM
 * `templateUrl`: The path to the component template file
 * `styleUrls`: A list of `css` files for the component
@@ -34,12 +39,19 @@ export class RadarChartComponent implements OnInit, OnChanges {
   @Input() pathPrefix: string;
 }
 ```
-#### Config property inputs
-The `fgColor` and `bkColor` inputs are associated with the configuration properties defined in the `generalConfig` field of the `ExtensionLibrary` class in [`module.ts`](src/module.ts). When end user changes a configuration option from the config pane, the value for the associated input variable will change accordingly.  
->Note: the input variable name should match the string defined in the `propName` property of the `configProps` and both should use camel case.
+The component class must specify all inputs the component expects. This sample shows two types of inputs:
+* Configuration property inputs
 
-### System Property inputs
-The `data` and `pathPrefix` inputs are system-level inputs associated with the `inputs` of the `ExtensionLibrary` in [`module.ts`](src/module.ts). `data` is one of the special input names which will be bound the real-time PI data by the application. To further configure how this symbol interacts with PI Vision we must provide additional metadata about this symbol outside the component. This is done when we register the symbol with PI Vision. Whenever PI Vision gets real-time data updates, a slice of data will flow into the component through the `data` input. The input data is "shaped" to help visualize the data in the component. The data shape, together with other data parameters are defined in the `dataParams` field in the symbol description in `ExtensionLibrary`. `pathPrefix` is another system input that contains a url prefix. `pathPrefix` could be used to locate static files, e.g. thumbnails, when building a custom symbol.
+    The `fgColor` and `bkColor` inputs are associated with the configuration properties defined in the `generalConfig` property of the `ExtensionLibrary` class in the [`module.ts`](src/module.ts) file. When a user changes a configuration option from the configuration pane, the value of the associated input variable changes accordingly.  
+   >Note: The input variable name should match the string defined in the `propName` property of the `configProps` property and both should use camel case.
+
+* System property inputs
+
+    The `data` and `pathPrefix` inputs are system-level inputs associated with the `inputs` property of the `ExtensionLibrary` class in the [`module.ts`](src/module.ts) file: 
+
+    * `data` is a special input name that the application binds to the real-time PI System data. When you register the symbol with PI Vision, you must provide additional metadata to configure how this symbol interacts with PI Vision.  Whenever PI Vision receives real-time data updates, a slice of data will flow into the component through the `data` input. The input data is "shaped" to help visualize the data in the component. The data shape, together with other data parameters, are defined in the `dataParams` property in the symbol description in the `ExtensionLibrary` class. 
+
+    * `pathPrefix` is a system input that contains a URL prefix. You can use the `pathPrefix` input to locate static files, such as images, when building a custom symbol.
 
 ### Constructor
 ```typescript
@@ -47,10 +59,10 @@ constructor( @Inject(PIWEBAPI_TOKEN) private piWebApiService: PiWebApiService) {
   // Put bare minimum initialization logic here
 }
 ```
-By definition constructor is invoked when the component class is instantiated. We can put bare minimum initialization logic in the constructor but usually asynchronous calls like HTTP requests should not be made in a constructor to make sure the component can be created in the DOM. In Angular We also specify injected dependencies as input parameters in the constructor.
+By definition, the constructor is invoked when the component class is instantiated. You can include bare minimum initialization logic in the constructor, but avoid including asynchronous calls like HTTP requests in the constructor to ensure that the component can be created in the DOM. In Angular, you also specify injected dependencies as input parameters to the constructor.
 
-### Lifecycle Hooks
-Angular provides lifecycle hooks to components so that when these events occur, components have the ability to respond. We can leverage the lifecycle hooks to build a custom symbol.
+### Lifecycle hooks
+Angular provides lifecycle hooks to components so that when these events occur, components have the ability to respond. You can leverage the lifecycle hooks to build a custom symbol.
 
 ```typescript
 export class RadarChartComponent implements OnInit, OnChanges {
@@ -65,19 +77,24 @@ export class RadarChartComponent implements OnInit, OnChanges {
   ...
 ```
 
-This class implements the `OnInit` and `OnChanges` interfaces so that it will be notified when Angular creates and updates the component.
-* `ngOnInit()`: The method will be called when Angular creates the symbol component. This is the place where you put initialization logic, for example, to create a chart using 3rd party library.
-* `ngOnChanges()`: This method will be called whenever any `@input` parameters change. The `changes` input is of time [`SimpleChanges`](https://angular.io/api/core/SimpleChanges), where you would be able to see the current value and previous value. This method should be used when we want to update UI or change internal state based on input change. 
+This class implements the `OnInit` and `OnChanges` interfaces to be notified when Angular creates and updates the component.
+* `ngOnInit()`: The method is called when Angular creates the symbol component. Include initialization logic in this method, for example logic that creates a chart using third-party library.
+* `ngOnChanges()`: This method is called whenever any `@input` parameters change. The `changes` object contains all the changed properties, such as any new data for the symbol. Use this method when you want to update the UI or change internal state based on an input change. 
 
-### Registering the Component in the Module
-The module file [`module.ts`](src/module.ts) is the single entry point of the library to bring all parts of the Extension library into one single unit ready ready for use in PI Vision. It is not recommended to change this file's name as this would require changes to the projects build system.
+## Module file
+The module file [`module.ts`](src/module.ts) is the single entry point of the library and brings all parts of the extension library into one single unit ready to use in PI Vision. 
+
+>Note: Do not change this file's name, as this would require changes to the project's build system.
+
+For example, here is the `module.ts` file, edited to include the  `RadarChartComponent`:
 
 ```typescript
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgLibrary, SymbolType, SymbolInputType, ConfigPropType } from './framework';
-import { LibModuleNgFactory } from './aot/module.ngfactory';
+import { LibModuleNgFactory } from './module.ngfactory';
 
+import { ExampleComponent } from './example/example.component';
 import { RadarChartComponent } from "./radar-chart/radar-chart.component";
 
 @NgModule({
@@ -133,17 +150,22 @@ export class ExtensionLibrary extends NgLibrary {
 }
 ```
 
-Let's break down each section...
+The module file serves two purposes:
+* [Component registration](#component-registration)
+* [Symbol metadata definition](#symbol-metadata-definition)
+
+### Component registration
 ```typescript
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgLibrary, SymbolType, SymbolInputType, ConfigPropType } from './framework';
-import { LibModuleNgFactory } from './aot/module.ngfactory';
+import { LibModuleNgFactory } from './module.ngfactory';
 
+import { ExampleComponent } from './example/example.component';
 import { RadarChartComponent } from "./radar-chart/radar-chart.component";
 
 @NgModule({
-  declarations: [
+ declarations: [
     ExampleComponent,
     RadarChartComponent
   ],
@@ -161,10 +183,13 @@ import { RadarChartComponent } from "./radar-chart/radar-chart.component";
 })
 export class LibModule { }
 ```
-A standard Angular module declaration containing all components and services used by your symbols.
-For each symbol in your library import it's component and add it to the `declarations`, `exports`, and `entryComponents` sections of the `@NgModule` decorator. In this example we are registering two symbols, the basic symbol whose component we defined above and *another* component (included to show how to register multiple symbols in a single library).  
+This section is a standard Angular module declaration, which contains all the components and services that your symbols use.
 
-It is recommended to name this module `LibModule`, renaming it would require additional changes to the seed projects boiler-plate code.
+For each symbol in your library, you must import its component and add it to the `declarations`, `exports`, and `entryComponents` sections of the `@NgModule` decorator. This example declares two symbols, the basic `RadarChartComponent` symbol, created as a component above, and the `ExampleComponent` symbol.   
+
+OSIsoft recommends naming this module `LibModule`; using another name would require additional changes to the extensions project's boiler-plate code.
+
+###  Symbol metadata definition
 
 ```typescript
 export class ExtensionLibrary extends NgLibrary {
@@ -195,88 +220,93 @@ export class ExtensionLibrary extends NgLibrary {
       layoutHeight: 400
     },
     {
-      // some other symbol components..
+        // some other symbol components..
     }
   ];
 }
 ```
-This class is similar to the Angular `NgModule`, but contains the metadata specific to PI Vision symbols. Naming the `NgLibrary`  derived class as `"ExtensionLibrary"` is required as the PI Vision application expects the extension library to export class with this name.
+This class is similar to the Angular `NgModule`, but contains the metadata specific to PI Vision symbols. The name of the `NgLibrary` derived class must be  `ExtensionLibrary`,  as the PI Vision application expects the extension library to export a class with this name. The class requires the following settings:
 
-`module` and `moduleFactory` must be set to the Angular module type declared above and its "factory" object which is created when the library is built. It was imported with this line: `import { LibModuleNgFactory } from './aot/module.ngfactory'` 
+* `module` -- Must be set to the Angular module `LibModule`.
+* `moduleFactory` -- Must be set to `LibModuleNgFactory`, which is created when the library is built and imported in the module declaration.
+* `symbols` -- An array of `SymbolType` objects (using the inline object syntax) declares each symbol in the library. This object lets PI Vision know that a symbol exists, what to call the symbol, which component to create, what configuration properties the symbol requires, how to query for PI System data, and how the symbol interacts with the rest of the application.
 
-Last, but not least, is the `symbols` array . Each symbol in the library must be declared by creating a `SymbolType` object (normally using the inline object syntax). This object lets PI Vision know that this symbol exists, what to call it, which component to create, what configuration properties does the symbol require, how to query for PI data, and how it interacts with the rest of the application. 
+    Each symbol can have the following properties:
 
-At the very least, each symbol needs a unique `name` (unique within this library). It is recommended this name contain only standard lowercase english characters, numbers, and dashed. `much-like-this`.
+    * `name` -- Required.  A unique name within the library to identify the symbol. The name should contain only standard lowercase English characters, numbers, and hyphens, such as `much-like-this`.
+    * `displayName` -- A human-readable name for this symbol. The UI will show this name in various places, such as the toolbox. 
+    * `dataParams` -- The types of data that the symbol visualizes. The radar-chart symbol creates a radar chart that shows the snapshot value of multiple data sources. Therefore, this symbol specifies `crosstab` as the data shape and `snapshot` as the data mode. See [Data shapes](#data-shapes).
+    * `thumbnail` -- A URL to an SVG image file that contains a small icon for the symbol. PI Vision shows this icon in a display's symbol-creation toolbox. Store the file in the assets folder and prefix the filename with `^/assets/images/`. At runtime, the `^` will be replaced with the URL to the installed asset files. See [Images and other asset files](#imagess-and-other-asset-files) for more information.
+    * `compCtor` -- The class of the symbol's Angular component. The class connects this metadata with the visual Angular component.
+    * `inputs` -- An array of enum values that match the `@Input` property names of the symbol's component. Every system-level input must be listed here. You cannot simply declare the inputs in the component.    
+    PI Vision supports the following system properties:
+      * `SymbolInputType.Columns`: Indicates that the symbol requested certain columns for data summary
+      * `SymbolInputType.CursorTime`:  Indicates that the symbol needs the `Date` object when dropping a cursor on the symbol
+      * `SymbolInputType.Data`: Indicates that the symbol needs real-time data from the PI System
+      * `SymbolInputType.EditMode`: Indicates that the symbol needs to know if display is in edit mode
+      * `SymbolInputType.PathPrefix`: Useful if you need to add images to your symbol
+      * `SymbolInputType.Shape`: Indicates that the symbol needs to know its data shape
+      * `SymbolInputType.Type`: Add this if you are interested in the type of the symbol
+      * `SymbolInputType.Selected`: Indicates that symbol needs to know whether it is selected
 
-`displayName` is a human readable name for this symbol as it appears in various places in the display's UI (the tool box, for example).
+       The example defines `SymbolInputType.Data`, which lets PI Vision know that this symbol needs real-time data from the PI System. In this case, the `@Input` parameter is named `data`.
+    * `generalConfig` -- An array of configuration property groups. This array lists the symbol properties that can be configured through user input and organizes them into logical sections (shown in the generated configuration UI). 
+        You specify the following configuration properties:
+        * `propname` -- The name of the property.
+        * `displayName` -- The property name that appears in the configuration pane.
+        * `configType` -- The type of configuration available to the user in the the configuration pane for this property. You can use the following predefined configuration options: 
+            * `ConfigPropType.Color`: Select a color
+            * `ConfigPropType.Num`: Enter numbers
+            * `ConfigPropType.Text`: Enter text 
+            * `ConfigPropType.Flag`: Select an on or off switch
+            * `ConfigPropType.Url`: Enter a URL
+            * `ConfigPropType.DocumentUrl`: Enter a URL to a PI Vision document
+            * `ConfigPropType.Columns`: Modify data columns in the symbol
+            * `ConfigPropType.TextAlign`: Set the text-align style
+            * `ConfigPropType.Datasource`: Set data-source input
+            * `ConfigPropType.Custom`: Custom configuration property
+        * `defaultVal` -- Optional. The default value for the property.
+        * `isMultiState` -- Optional. Boolean that enables configuring multistate on the property. If not specified, the default value is false.
+             
+        For example, consider the following example configuration property:
+        ```typescript
+        { propName: 'bkColor', displayName: 'Background color', configType: ConfigPropType.Color, defaultVal: 'white' }
+        ```
+        This code block defines the background color property for the symbol. The configuration pane will show an option called `Background color` with the default color set to `white`. If you add `bkColor` as an `@Input` to the component, you can use the selected background color in your code and template.
 
-`thumbnail` is a Url to an SVG image file used as a small icon for the symbol in the symbol creation tool box in the display. The file should be stored in the assets folder and the filename should be prefixed by `^/assets/images/`. At runtime the `^` will be replaced with the URL to the installed asset files. See [Thumbnails and Other Asset Files](#thumbnails-and-other-asset-files) for more information.
-
-`compCtor` is the class of the Angular component of this symbol. This makes the connection between this metadata and the visual Angular component.
-
-`inputs` is an array of enum values that match the `@Input` property names of the the component for this symbol. Every system-level input must be listed here. It is not enough to simply declare the inputs in the component.
-
-Here are a list of system properties that PI Vision supports:
-* `SymbolInputType.Columns`: Adding this property indicates the symbol requested certain columns for data summary
-* `SymbolInputType.CursorTime`:  This property lets PI Vision know the symbol needs the Date object when dropping a cursor on the symbol
-* `SymbolInputType.Data`: Real time data from PI
-* `SymbolInputType.EditMode`: Add this property if symbol needs to know if display is in edit mode
-* `SymbolInputType.PathPrefix`: The path prefix is useful if you need to add images to your symbol
-* `SymbolInputType.Shape`: Add this if the symbol needs to know its data shape
-* `SymbolInputType.Type`: Add this if you are interested in the type of the symbol
-* `SymbolInputType.Selected`: Add this to inputs if symbol needs to know whether it is selected
-
-In the example `SymbolInputType.Data` is defined to let PI Vision know this symbols needs real time data from PI. In this case, the `@Input` parameter should be named `data`.
-
-`dataParams` object describes the types of data that the symbol needs to visualize. In our example, we want to create a radar chart showing the snapshot value of multiple data sources. So we use `crosstab` as the data shape, and `snapshot` as the data mode. Please refer to [Data Shapes](#data-shapes)
-
-
-`generalConfig` is an array of config property groups that describes what properties for the symbol can be configured via user input and organizes them into logical sections (which is reflected in the generated configuration UI). Instead of writing your own template and logic for each config option, PI Vision now allows you to use predefined config options, as shown below: 
-
-* `ConfigPropType.Color`: Use this type if the configuration option changes color
-* `ConfigPropType.Num`: User will be able to enter numbers in the config pane
-* `ConfigPropType.Text`: Enter text in the config pane and pass into the component
-* `ConfigPropType.Flag`: Use this option if the config option is a switch and can be turn on and off
-* `ConfigPropType.Url`: Url Config option
-* `ConfigPropType.DocumentUrl`: The Url is for a PI Vision document
-* `ConfigPropType.Columns`: Modify data columns shown in the symbol
-* `ConfigPropType.TextAlign`: Set the text align style
-* `ConfigPropType.Datasource`: Set data source input from config UI
-* `ConfigPropType.Custom`: Custom config property
-
-
-Let's also look at an example configuration property:
-```typescript
-{ propName: 'bkColor', displayName: 'Background color', configType: ConfigPropType.Color, defaultVal: 'white' }
-```
-This code block defines the background color property for the symbol. On the config pane, you should be able to see a config option called `Background color` and the default color is `white`. Adding `bkColor` as an `@Input` in the component allows you to use the selected back ground color in your code and template.
-
-### Multistate
-You can easily add multistate for a configuration property by setting `isMultiState` to `true` in the configuration object:
+#### Multistate
+You can easily add multistate capability to a property by including the `isMultiState` configuration property and setting to `true`:
 ```typescript
 { propName: 'bkColor', displayName: 'Background color', configType: ConfigPropType.Color, defaultVal: 'white', isMultiState: true }
 ``` 
 
-By adding this property we are able to open multistate config pane for the custom symbol in PI Vision and configure data source and multi-state conditions to control the background color of the symbol.  
+When you include this property, PI Vision includes the multistate configuration pane with the symbol, allowing users to configure the data source and multistate conditions that control the background color of the symbol. 
 
-### Thumbnails and Other Asset Files
-All files within the `/assets` folder will be deployed along with the library. This provides a way to use external files, like images, in your components templates. To form urls to these files you must declare a *parameter* input on your component named `pathPrefix` as well as adding `SymbolInputType.PathPrefix` in the `inputs` array when defining symbol metadata in `module.ts`. This will contain a Url prefix which can be appended to the filename of the file to form an absolute path to the files.
+***Please note that multistate only works with symbols configured to use the `'single'` data shape currently.***
+
+## Images and other asset files
+All files within the `/assets` folder will be deployed with the library. This provides a way to use external files, like images, in your component templates. To form URLs to these files, your component must declare an input named `pathPrefix` and  the module file `module.ts` must include the system input `SymbolInputType.PathPrefix` in the `inputs` array. This input contains a URL prefix that is appended to the file name to form an absolute path to the file.
 For example:
 ```html
 <img [src]="pathPrefix + '/assets/my-image.png" />
 ```
-When defining the Thumbnail for a symbol in the `SymbolType` for that symbol prefix the name of the thumbnail with a `^` for this prefix. See [Registering the Component in the Module](#registering-the-component-in-the-module) for an example of this.
+When defining the thumbnail image for a symbol in the `SymbolType` object, prefix the name of the thumbnail with a `^` for this prefix. See [Symbol metadata definition](#symbol-metadata-definition) for an example of this.
 
 
 
 
-### Data Parameters
-In class `ExtensionLibrary` in `module.ts` we defined symbol metadata. In the `symbols` array we entered `dataParams` property for each symbol. By specifying `dataParams` we are requesting PI Vision to send real time data into our custom symbol with a given format, to better assist us in visualizing the data in our symbol. In this section, we will walk you through the data shapes and data modes PI Vision support.
+## Data parameters
+The module file `module.ts` defines symbol metadata in the `ExtensionLibrary` class. The `symbols` array contains a `dataParams` property for each symbol. When the  `dataParams` property is present, PI Vision sends real-time data to the symbol in the specified format, which lets you visualize the data in the symbol. This section discusses the data shapes and data modes that PI Vision supports.
 
-#### Data Shapes
+### Data shapes
+PI Vision supports the following data shapes:
+* [Single shape](#single-shape)
+* [Trend shape](#trend-shape)
+* [Crosstab shape](#crosstab-shape)
+* [XY shape](#xy-shape)
 
-##### Single Shape
-A `single` data shape is defined if the custom symbol needs to access the recorded value of data source(s) for the current display end time. After setting `{ shape: 'single' }` as the `dataParams` property in `module.ts`, you can expect your component's `data` input to be similar to this object:
+#### Single shape
+Use the `single` data shape if the symbol needs to access the recorded value at the current display's end time. Set the `dataParams` property in the `module.ts` file to  `{ shape: 'single' }` to make the component's `data` input look like this:
 
 ```typescript
 {
@@ -291,8 +321,8 @@ A `single` data shape is defined if the custom symbol needs to access the record
 }
 ```
 
-##### Trend Shape
-A `trend` shape is for symbols trying to visualize data on a trend-like component. This data shape will make `data` input contain plot values for the data source(s) in a given time range. Setting `dataParams` to be `{ shape: 'trend' }` will make your `data` input look like this:
+#### Trend shape
+Use the `trend` shape if the symbol needs to access plot values during a given time range, such as to visualize a trend. Set the `dataParams` property in the `module.ts` file to `{ shape: 'trend' }` to make the component's `data` input look like this:
 
 ```typescript
 {
@@ -334,8 +364,8 @@ A `trend` shape is for symbols trying to visualize data on a trend-like componen
 }
 ``` 
 
-##### Crosstab Shape
-A `crosstab` shape is used when the symbol is trying to compare the real-time data for attributes across multiple data assets in a component. Defining crosstab shape also requires specifying `dataMode` in the `dataParams`. A sample `data` input object for `{ shape: 'crosstab', dataMode: 'snapshot' }` is shown below.
+#### Crosstab shape
+Use the `crosstab` shape when the symbol compares the real-time data for attributes across multiple data assets. The crosstab shape requires that you also specify `dataMode` in the `dataParams` property. (For available data modes, see [Data modes](#data-modes).) Set the `dataParams` property in the `module.ts` file to  `{ shape: 'crosstab', dataMode: 'snapshot' }` to make the component's `data` input look like this:
 
 > Note: The attribute data is grouped by assets in `events` property.
 
@@ -375,10 +405,10 @@ A `crosstab` shape is used when the symbol is trying to compare the real-time da
 }
 ```
 
-##### XY Shape
-Use `xy` data shape when the symbol is trying to create a symbol similar to scatter plot chart, where you have one base item in the x axis, and one or more data items in the y axis. Below shows an example `data` input into the component:
+#### XY shape
+Use the `xy` shape when the symbol creates a scatter plot chart, with one base item on the x-axis, and one or more data items on the y-axis. Set the `dataParams` property in the `module.ts` file to `{ shape: 'xy' }` to make the component's `data` input look like this:
 
-> Note: `\\Asset1|Attr1` is the data item on x Axis, and `\\Asset2|Attr1` is the data item on y axis.
+> Note: `\\Asset1|Attr1` is the data item on x-axis, and `\\Asset2|Attr1` is the data item on y-axis.
 ```typescript
 {
   basePath: '\\Asset1|Attr1',
@@ -414,11 +444,11 @@ Use `xy` data shape when the symbol is trying to create a symbol similar to scat
 }
 ``` 
 
-#### Data Modes
-`dataMode` is another property in `dataParams` that defines the type of the data entering into the custom symbol. Currently specifying `dataMode` is required for [`crossTab`](#crosstab-shape) data shape. Below are the avalable data mode options:
-* `snapshot`: PI Vision will send snapshot values, which are the latest available values for the data source(s)
-* `interpolatedValues`: Your custom symbol will get the interpolated value for the data source(s) evaluated at the end of the time range
-* `recordedvalues`: PI Vision will pass in recorded values for the given data sources, which are the values from Data Archive for the time period 
+### Data modes
+The `dataParams` property can also set the `dataMode` property, which refines the type of the data entering the symbol. The `dataMode` property is required for the [`crossTab`](#crosstab-shape) data shape. PI Vision currently supports the following data modes:
+* `snapshot`: PI Vision sends snapshot values, the latest available values sent from the data sources
+* `interpolatedValues`: PI Vision sends interpolated values, the values evaluated at the end of the time range
+* `recordedvalues`: PI Vision sends recorded values, the values from PI Data Archive for the time period 
 
 [angular]: https://angular.io/
 [javascript]: https://developer.mozilla.org/en-US/docs/Web/JavaScript
