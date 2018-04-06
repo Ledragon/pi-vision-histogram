@@ -4,12 +4,13 @@ import { NgLibrary, SymbolType, SymbolInputType, ConfigPropType } from './framew
 import { LibModuleNgFactory } from './module.ngfactory';
 
 import { ExampleComponent } from './example/example.component';
+import { NameComponent } from './name/name.component';
 
 @NgModule({
-  declarations: [ ExampleComponent ],
-  imports: [ CommonModule ] ,
-  exports: [ ExampleComponent ],
-  entryComponents: [ ExampleComponent ]
+  declarations: [ExampleComponent, NameComponent],
+  imports: [CommonModule],
+  exports: [ExampleComponent, NameComponent],
+  entryComponents: [ExampleComponent, NameComponent]
 })
 export class LibModule { }
 
@@ -39,6 +40,27 @@ export class ExtensionLibrary extends NgLibrary {
       ],
       layoutWidth: 200,
       layoutHeight: 100
+    },
+    {
+      name: 'name-symbol',
+      displayName: 'Name symbol',
+      compCtor: NameComponent,
+      dataParams: { shape: 'trend' },
+      inputs: [
+        SymbolInputType.Data
+      ],
+      thumbnail: '^/assets/images/example.svg',
+      generalConfig: [
+        {
+          name: 'Options',
+          isExpanded: true,
+          configProps: [
+            { propName: 'color', displayName: 'Text color', configType: ConfigPropType.Color, defaultVal: 'blue' }
+          ]
+        }
+      ],
+      layoutHeight: 50,
+      layoutWidth: 100
     }
   ];
 }

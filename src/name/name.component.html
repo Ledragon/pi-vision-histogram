@@ -1,0 +1,8 @@
+<div>
+    <span [style.color]="color">Hello world</span>
+    <ul>
+        <li *ngFor="let event of events">
+{{event.timestamp}}: {{event.value}}
+        </li>
+    </ul>
+</div>
