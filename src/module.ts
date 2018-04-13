@@ -4,13 +4,13 @@ import { NgLibrary, SymbolType, SymbolInputType, ConfigPropType } from './framew
 import { LibModuleNgFactory } from './module.ngfactory';
 
 import { ExampleComponent } from './example/example.component';
-import { NameComponent } from './name/name.component';
+import { HistogramComponent } from './histogram/histogram.component';
 
 @NgModule({
-  declarations: [ExampleComponent, NameComponent],
+  declarations: [ExampleComponent, HistogramComponent],
   imports: [CommonModule],
-  exports: [ExampleComponent, NameComponent],
-  entryComponents: [ExampleComponent, NameComponent]
+  exports: [ExampleComponent, HistogramComponent],
+  entryComponents: [ExampleComponent, HistogramComponent]
 })
 export class LibModule { }
 
@@ -42,20 +42,20 @@ export class ExtensionLibrary extends NgLibrary {
       layoutHeight: 100
     },
     {
-      name: 'name-symbol',
-      displayName: 'Name symbol',
-      compCtor: NameComponent,
+      name: 'histogram-symbol',
+      displayName: 'Histogram symbol',
+      compCtor: HistogramComponent,
       dataParams: { shape: 'trend' },
       inputs: [
         SymbolInputType.Data
       ],
-      thumbnail: '^/assets/images/example.svg',
+      thumbnail: '^/assets/images/histogram.jpg',
       generalConfig: [
         {
           name: 'Options',
           isExpanded: true,
           configProps: [
-            { propName: 'color', displayName: 'Text color', configType: ConfigPropType.Color, defaultVal: 'blue' }
+            { propName: 'color', displayName: 'Color', configType: ConfigPropType.Color, defaultVal: 'blue' }
           ]
         }
       ],
