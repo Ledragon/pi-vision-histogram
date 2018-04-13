@@ -55,7 +55,8 @@ export class ExtensionLibrary extends NgLibrary {
           name: 'Options',
           isExpanded: true,
           configProps: [
-            { propName: 'color', displayName: 'Color', configType: ConfigPropType.Color, defaultVal: 'blue' }
+            { propName: 'bins', displayName: 'Bins', configType: ConfigPropType.Num, defaultVal: 10 },
+            { propName: 'yAxisVisible', displayName: 'Y axis', configType: ConfigPropType.Flag, defaultVal: true }
           ]
         }
       ],

@@ -16,25 +16,34 @@ export class HistogramComponent implements OnInit, OnChanges {
 
     _histogram: Histogram;
     @Input() color: string;
+    @Input() bins: number;
+    @Input() yAxisVisible: boolean;
     @Input() data: any;
     events: any[];
     constructor(private _element: ElementRef) {
         this._histogram = new Histogram()
-        .bins(10);
+            .bins(10);
     }
 
     ngOnInit() {
         this.events = [];
-        this._histogram.init(select(this._element.nativeElement));
+        this._histogram.init(select(this._element.nativeElement))
+            .bins(this.bins ? this.bins : 10);
     }
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.data) {
             // console.log(changes.data.currentValue);
-            if(changes.data.currentValue && changes.data.currentValue.body)
-            {
+            if (changes.data.currentValue && changes.data.currentValue.body) {
                 this._histogram.update(changes.data.currentValue.body);
             }
+        } else if (changes.bins && changes.bins.currentValue) {
+            this._histogram.bins(changes.bins.currentValue as number);
+            if (this.data) {
+                this._histogram.update(this.data.body);
+            }
+        } else if (changes.yAxisVisible) {
+            this._histogram.yAxisVisible(changes.yAxisVisible.currentValue)
         }
     }
 }

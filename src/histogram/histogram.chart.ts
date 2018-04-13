@@ -16,6 +16,7 @@ interface Formatted {
 
 export class Histogram {
 
+    _yAxisVisible: boolean;
     _histogram: d3.HistogramGenerator<Event, number>;
     _plotHeight: number;
     _plotWidth: number;
@@ -60,8 +61,15 @@ export class Histogram {
         return this._bins;
     }
 
+    yAxisVisible(value?: boolean) {
+        this._yAxisVisible = !!value;
+        this._plotGroup.selectAll('.y.axis')
+            .style('display', !!value ? 'visible' : 'hidden');
+
+    }
+
     init(selection: d3.Selection<HTMLDivElement, any, any, any>): this {
-        console.log(selection.node());
+        // console.log(selection.node());
         // this.width(selection.node().clientWidth)
         //     .height(selection.node().clientHeight);
         let svg = selection
@@ -70,7 +78,7 @@ export class Histogram {
             .attr('height', this.height());
 
         let plotMargins = {
-            top: 0,
+            top: 10,
             bottom: 0,
             left: 0,
             right: 0
@@ -88,10 +96,10 @@ export class Histogram {
         if (this._plotGroup) {
             let bins = data.map(d => {
                 let binned = this._histogram(d.events);
-                let lengths = binned.map(b => b.length);//[].concat(binned.map(d => d.map(b => b.length)));
+                let lengths = binned.map(b => b.length);
                 return {
                     color: d.color,
-                    bins: binned,//this._histogram(d.events),
+                    bins: binned,
                     path: d.path,
                     step: d.step,
                     lengths,
@@ -99,7 +107,6 @@ export class Histogram {
                     xMax: d3.max(binned, b => b.x1),
                 }
             });
-            // console.log(bins);
 
             var histogramBound = this._plotGroup.selectAll('.histogram')
                 .data(bins);
@@ -115,14 +122,13 @@ export class Histogram {
             enterHistogram.append('text')
                 .classed('title', true)
                 .attr('x', this.width() / 2)
-                .attr('y', 12)
-                .attr('dy', '.35em')
-                .style('text-anchor', 'middle');
+                .attr('y', 15)
+                .attr('dy', '.35em');
             let plotMargins = {
                 top: 30,
                 bottom: 20,
-                left: 20,
-                right: 20
+                left: 40,
+                right: 40
             };
             let plotGroup = enterHistogram.append('g')
                 .classed('plot', true)
@@ -131,24 +137,19 @@ export class Histogram {
             let plotWidth = width - plotMargins.left - plotMargins.right;
             let plotHeight = height - plotMargins.top - plotMargins.bottom;
 
-            // this._histogram.domain(xScale.domain() as [number, number])
-            //     .thresholds(xScale.ticks(this._bins));
-
             let xAxisGroup = plotGroup.append('g')
                 .classed('x', true)
                 .classed('axis', true)
                 .attr('transform', (d, i) => `translate(${0},${plotHeight})`)
-            // .call(xAxis);
 
-            // let yAxis = d3.axisLeft(yScale);
-            // let yAxisGroup = plotGroup.append('g')
-            //     .classed('axis', true)
-            //     .call(yAxis);
+            let yAxisGroup = plotGroup.append('g')
+                .classed('y', true)
+                .classed('axis', true)
+                .style('display', !!this._yAxisVisible ? 'visible' : 'hidden')
 
             let barsGroup = plotGroup.append('g')
                 .classed('bars', true);
 
-            // console.log([].concat(...dataBound.merge(enterSelection).select('.plot').data().map(d => d.bins.map(b => b.length))));
             let merged = histogramBound.merge(enterHistogram);
             merged.select('.title')
                 .text(d => d.path.split('\\').reverse()[0]);
@@ -159,39 +160,29 @@ export class Histogram {
 
     private plot(histograms: d3.Selection<d3.BaseType, Formatted, d3.BaseType, any>,
         width: number, height: number) {
-
         var self = this;
         let plotsGroup = histograms.select('.plot')
             .each(function (d, i) {
                 self.bars(d3.select(this), d, width, height);
             });
-
-        // plotGroup.select('.bars')
-        //     .select('rect')
     }
 
     private bars(plotGroup: d3.Selection<d3.BaseType, Formatted, d3.BaseType, any>, formatted: Formatted, width: number, height: number) {
-        // console.log(plotGroup.data());
-        // plotGroup.select('.title')
         let barsGroup = plotGroup.select('.bars');
 
-        // console.log(...barsGroup.data().map(d => d.bins.map(b => b.length))); 
-        // let lengths = [].concat(...barsGroup.data().map(d => d.bins.map(b => b.length)));
-        // let x0s = [].concat(...barsGroup.data().map(d => d.bins.map(b => b.x0)));
-        // let x1s = [].concat(...barsGroup.data().map(d => d.bins.map(b => b.x1)));
-        // console.log(lengths);
         let yScale = d3.scaleLinear()
             .domain([0, d3.max(formatted.lengths)])
-            // .domain([0, d3.max(barsGroup.data().map(d => d.bins.length))])
             .range([height, 0])
             .nice();
-        // yScale
-        //     .nice();
+        let yAxis = d3.axisLeft(yScale)
+            .ticks(5);
+        plotGroup.select('.y.axis')
+            .call(yAxis);
         let xScale = d3.scaleLinear()
             .domain([formatted.xMin, formatted.xMax])
-            .range([0, width])
-            .nice();
-        let xAxis = d3.axisBottom(xScale);
+            .range([0, width]);
+        let xAxis = d3.axisBottom(xScale)
+            .ticks(5);
         plotGroup.select('.x.axis')
             .call(xAxis);
         var dataBound = barsGroup.selectAll('.bar')
@@ -210,9 +201,8 @@ export class Histogram {
         let bandWidth = width / this._bins * .8;
         barsGroup
             .selectAll('rect')
-            .attr('x', -bandWidth / 2)
+            .attr('x', 0)
             .attr('y', (d: any) => {
-                // console.log(d);
                 return height - yScale(d.length);
             })
             .attr('width', bandWidth)
