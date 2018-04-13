@@ -138,8 +138,9 @@ export class Histogram {
 
             let plotsGroup = histograms.select('.plot');
             let barsGroup=plotsGroup.select('.bars');
-        console.log(...barsGroup.data().map(d => d.bins.map(b => b.length))); 
+        // console.log(...barsGroup.data().map(d => d.bins.map(b => b.length))); 
         let lengths = [].concat(...barsGroup.data().map(d => d.bins.map(b => b.length)));
+        console.log(lengths);
         let yScale = d3.scaleLinear()
                 .domain([0, d3.max(lengths)])
                 // .domain([0, d3.max(barsGroup.data().map(d => d.bins.length))])
