@@ -207,16 +207,16 @@ export class Histogram {
             .attr('transform', (d, i) => `translate(${xScale(d.x0)},${0})`);
         var rect = enterSelection.append('rect')
             .style('stroke', 'none');
+        let bandWidth = width / this._bins * .8;
         barsGroup
             .selectAll('rect')
-            .attr('x', 0)
+            .attr('x', -bandWidth / 2)
             .attr('y', (d: any) => {
                 // console.log(d);
                 return height - yScale(d.length);
             })
-            .attr('width', width / this._bins)
+            .attr('width', bandWidth)
             .attr('height', (d: any) => yScale(d.length))
             .style('fill', formatted.color);
-        console.log(formatted)
     }
 }

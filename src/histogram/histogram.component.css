@@ -2,5 +2,5 @@ svg text{
     font-size:.8em;
 }
 svg text.title{
-    
+    text-transform: uppercase;
 }
