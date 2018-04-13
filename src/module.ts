@@ -59,8 +59,8 @@ export class ExtensionLibrary extends NgLibrary {
           ]
         }
       ],
-      layoutHeight: 50,
-      layoutWidth: 100
+      layoutHeight: 300,
+      layoutWidth: 400
     }
   ];
 }
