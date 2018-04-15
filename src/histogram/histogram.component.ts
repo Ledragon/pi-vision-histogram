@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import { Histogram } from './histogram.chart';
 
-import { select } from 'd3';
+import elementResizeDetector from 'element-resize-detector';
 
 @Component({
     selector: 'histogram',
@@ -26,8 +26,17 @@ export class HistogramComponent implements OnInit, OnChanges {
     }
 
     ngOnInit() {
+        elementResizeDetector()
+            .listenTo(this._element.nativeElement.parentElement, elt => {
+                // console.log(elt.clientWidth, elt.clientHeight);
+                this._histogram.width(elt.clientWidth)
+                    .height(elt.clientHeight);
+                if (this.data && this.data.body) {
+                    this._histogram.update(this.data.body);
+                }
+            })
         this.events = [];
-        this._histogram.init(select(this._element.nativeElement))
+        this._histogram.init(this._element.nativeElement)
             .bins(this.bins ? this.bins : 10);
     }
 

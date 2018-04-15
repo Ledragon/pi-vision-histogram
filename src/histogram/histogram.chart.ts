@@ -16,6 +16,8 @@ interface Formatted {
 
 export class Histogram {
 
+    _plotMargins: { top: number; bottom: number; left: number; right: number; };
+    _elt: HTMLElement;
     _yAxisVisible: boolean;
     _histogram: d3.HistogramGenerator<Event, number>;
     _plotHeight: number;
@@ -68,32 +70,41 @@ export class Histogram {
 
     }
 
-    init(selection: d3.Selection<HTMLDivElement, any, any, any>): this {
-        // console.log(selection.node());
-        // this.width(selection.node().clientWidth)
-        //     .height(selection.node().clientHeight);
-        let svg = selection
-            .append('svg')
-            .attr('width', this.width())
-            .attr('height', this.height());
+    init(elt: HTMLElement): this {
+        this._elt = elt;
 
-        let plotMargins = {
+        this._plotMargins = {
             top: 10,
             bottom: 0,
             left: 0,
             right: 0
         };
+
+        let svg = d3.select(elt)
+            .append('svg')
+            .attr('width', this.width())
+            .attr('height', this.height());
+
         this._plotGroup = svg.append('g')
             .classed('plot', true)
-            .attr('transform', `translate(${plotMargins.left},${plotMargins.top})`);
-
-        this._plotWidth = this.width() - plotMargins.left - plotMargins.right;
-        this._plotHeight = this.height() - plotMargins.top - plotMargins.bottom;
+            .attr('transform', `translate(${this._plotMargins.left},${this._plotMargins.top})`);
         return this;
+    }
+
+    private updateSizes() {
+        this._plotWidth = this.width() - this._plotMargins.left - this._plotMargins.right;
+        this._plotHeight = this.height() - this._plotMargins.top - this._plotMargins.bottom;
+
+        d3.select(this._elt)
+            .select('svg')
+            .attr('height', this.height())
+            .attr('width', this.width());
     }
 
     update(data: { color: string, events: Event[], path: string, step: number }[]) {
         if (this._plotGroup) {
+
+            this.updateSizes();
             let bins = data.map(d => {
                 let binned = this._histogram(d.events);
                 let lengths = binned.map(b => b.length);
@@ -117,11 +128,9 @@ export class Histogram {
             var enterHistogram = histogramBound
                 .enter()
                 .append('g')
-                .classed('histogram', true)
-                .attr('transform', (d, i) => `translate(${0},${i * height})`);
+                .classed('histogram', true);
             enterHistogram.append('text')
                 .classed('title', true)
-                .attr('x', this.width() / 2)
                 .attr('y', 15)
                 .attr('dy', '.35em');
             let plotMargins = {
@@ -140,7 +149,6 @@ export class Histogram {
             let xAxisGroup = plotGroup.append('g')
                 .classed('x', true)
                 .classed('axis', true)
-                .attr('transform', (d, i) => `translate(${0},${plotHeight})`)
 
             let yAxisGroup = plotGroup.append('g')
                 .classed('y', true)
@@ -151,7 +159,12 @@ export class Histogram {
                 .classed('bars', true);
 
             let merged = histogramBound.merge(enterHistogram);
+            merged.select('.x.Axis')
+                .attr('transform', (d, i) => `translate(${0},${plotHeight})`);
+            merged.select('.histogram')
+                .attr('transform', (d, i) => `translate(${0},${i * height})`);
             merged.select('.title')
+                .attr('x', this.width() / 2)
                 .text(d => d.path.split('\\').reverse()[0]);
 
             this.plot(merged, plotWidth, plotHeight);

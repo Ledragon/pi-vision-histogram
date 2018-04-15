@@ -55,8 +55,7 @@ export class ExtensionLibrary extends NgLibrary {
           name: 'Options',
           isExpanded: true,
           configProps: [
-            { propName: 'bins', displayName: 'Bins', configType: ConfigPropType.Num, defaultVal: 10 },
-            { propName: 'yAxisVisible', displayName: 'Y axis', configType: ConfigPropType.Flag, defaultVal: true }
+            { propName: 'bins', displayName: 'Bins', configType: ConfigPropType.Num, defaultVal: 10 }
           ]
         }
       ],
