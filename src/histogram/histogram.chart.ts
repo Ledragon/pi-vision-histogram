@@ -132,7 +132,8 @@ export class Histogram {
             enterHistogram.append('text')
                 .classed('title', true)
                 .attr('y', 15)
-                .attr('dy', '.35em');
+                .attr('dy', '.35em')
+                .style('text-anchor', 'middle');
             let plotMargins = {
                 top: 30,
                 bottom: 20,
@@ -159,9 +160,9 @@ export class Histogram {
                 .classed('bars', true);
 
             let merged = histogramBound.merge(enterHistogram);
-            merged.select('.x.Axis')
+            merged.select('.x.axis')
                 .attr('transform', (d, i) => `translate(${0},${plotHeight})`);
-            merged.select('.histogram')
+            merged//.select('.histogram')
                 .attr('transform', (d, i) => `translate(${0},${i * height})`);
             merged.select('.title')
                 .attr('x', this.width() / 2)
